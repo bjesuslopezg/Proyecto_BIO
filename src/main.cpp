@@ -1,26 +1,19 @@
-#include "BluetoothSerial.h"
+#include <ThingerESP32.h>
+#include <Arduino.h>
 
+//Conexion a Thinger
+#define USERNAME "bjesuslopezg"
+#define DEVICE_ID "esp32_wifi"
+#define DEVICE_CREDENTIAL "sw%5mqvnqsz%k4K1"
+#define SSID "bry"
+#define SSID_PASSWORD "olivander"
+ThingerESP32 thing(USERNAME, DEVICE_ID, DEVICE_CREDENTIAL);
 
-BluetoothSerial ESP_BT; // Object for Bluetooth
-//https://how2electronics.com/iot-ecg-monitoring-ad8232-sensor-esp32/
-
-// global vars
-boolean BT_cnx = false;
-
-void callback(esp_spp_cb_event_t event, esp_spp_cb_param_t *param){
-  if(event == ESP_SPP_SRV_OPEN_EVT){
-    Serial.println("Client Connected");
-    BT_cnx = true;
-  }
- 
-  if(event == ESP_SPP_CLOSE_EVT ){
-    Serial.println("Client disconnected");
-    BT_cnx = false;
-    ESP.restart();
-  }
-}
+#define Th 3000 //Umbral para la medición de bpm
+int beat; 
 
 void setup() {
+  thing.add_wifi(SSID, SSID_PASSWORD);
   // initialize digital pin 2 as an output.
   // initialize the serial communication:
   Serial.begin(115200);
@@ -28,19 +21,13 @@ void setup() {
   pinMode(35, INPUT); // Setup for leads off detection LO +
   pinMode(34, INPUT); // Setup for leads off detection LO -
   pinMode(32, INPUT); // Senal ECG
-  // initialize the serial BT communication:
-  ESP_BT.register_callback(callback);
-  if(!ESP_BT.begin("ESP32_ECG")){
-    Serial.println("An error occurred initializing Bluetooth");
-  }else{
-    Serial.println("Bluetooth initialized... Bluetooth Device is Ready to Pair...");
-  }
+  //Thinger:
+  // resource output example (i.e. reading a sensor value)
+  thing["bpm"] >> outputValue(beat);
 }
 
-#define Th 3000
-
-
 int bpm(){
+  thing.handle();
   int beatcounter = 0;
   int detector2 = 0;
   int detector1 = 0;
@@ -54,7 +41,6 @@ int bpm(){
     else{
       senal = 1;
     }
-
     //Detector de pulsos
     detector1 = detector2;
     detector2 = senal;
@@ -67,19 +53,12 @@ int bpm(){
 
 
 void loop() {
-  int beat;
   if((digitalRead(34) == 1)||(digitalRead(35) == 1)){
     Serial.println('!');
-    ESP_BT.println('!');
   }
   else{
     beat = bpm();
     Serial.println(beat);
-    //Do the same for blutooth
-    if(BT_cnx){
-      ESP_BT.print('E'); //make the app Blutooth Graphics (https://play.google.com/store/apps/details?id=com.emrctn.BluetoothGraphics&hl=en_US) work (as specified by the app)
-      ESP_BT.println(beat);
-    } 
   }
   //Wait a little to keep serial data from saturating
   delay(1);
