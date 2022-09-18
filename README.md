@@ -4,6 +4,6 @@ En la rama bluetooth se encuentra una implementación para visualizar la señal 
 
 Video: Funcionamiento de la implementación realizada con Wi-Fi: https://www.youtube.com/shorts/bAEmlh1w5LE
 
-Video: Funcionamienot de la implementación realizada con Bluetooth: https://www.youtube.com/shorts/SnNh1EFrpu0
+Video: Funcionamiento de la implementación realizada con Bluetooth: https://www.youtube.com/shorts/SnNh1EFrpu0
 
 Informe en donde se detalla más respecto al proyecto y el funcionamiento del código: Solicitar al autor. 
